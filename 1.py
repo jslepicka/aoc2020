@@ -19,6 +19,17 @@ def part1():
         a.pop(0)
         b.pop(-1)
 
+def part1b():
+    print("Part 1b")
+    diffs = {}
+    for i in input:
+        if i in diffs:
+            j = 2020-i
+            print("%d + %d = 2020" % (i,j))
+            print("%d * %d = %d" % (i, j, i * j) )
+        else:
+            diffs[2020-i] = 1
+
 def part2():
     print("Part 2")
     a = sorted(input)
@@ -48,4 +59,5 @@ def part2():
                 rotate_b += 1
 
 part1()
+part1b()
 part2()
