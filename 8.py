@@ -65,7 +65,6 @@ def part2():
             if m.pc in visited:
                 break
             visited[m.pc] = 1
-            m.run(True)
             if m.run(True) == machine.STATE_TERMINATED:
                 return m.a
 
