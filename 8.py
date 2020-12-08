@@ -32,16 +32,10 @@ class machine:
                 return self.STATE_NONE
 
 
-
 input = []
 with open("8.txt") as f:
    input = [x.strip() for x in f.readlines()]
 
-
-def decode(ins):
-    op, arg = ins.split(" ")
-    arg = int(arg)
-    return op, arg
 
 def part1():
     visited = {}
