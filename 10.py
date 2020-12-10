@@ -1,3 +1,4 @@
+import time
 import numpy as np
 from numpy.linalg import matrix_power
 input = []
@@ -38,12 +39,29 @@ def part2():
     paths = 0
     #needs to be 64-bit to avoid overflow with matrix_power
     m = np.array(m, dtype=np.uint64)
-    mm = np.array(m, dtype=np.uint64)
+    mm = np.copy(m)
     while np.count_nonzero(mm):
         mm = np.matmul(mm, m)
         paths += mm[0, l-1]
+    return paths
 
+def part2b():
+    #instead of doing fancy math, just walk the list and figure out how many ways there are
+    #to get to each node by summing up the number of paths to the previous nodes within range
+    jolt = sorted(input)
+    jolt.insert(0, 0)
+    jolt.append(jolt[-1] + 3)
+    a = {0: 1}
+    paths = 0
+    for i in jolt[1:]:
+        paths = a.get(i-1, 0) + a.get(i-2, 0) + a.get(i-3, 0)
+        a[i] = paths
     return paths
 
 print("Part 1: %d" % part1())
+start = time.time()
 print("Part 2: %d" % part2())
+print(time.time() - start)
+start = time.time()
+print(part2b())
+print(time.time() - start)
