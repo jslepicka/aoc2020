@@ -36,13 +36,13 @@ def part2():
         m.append(a)
 
     paths = 0
+    #needs to be 64-bit to avoid overflow with matrix_power
+    m = np.array(m, dtype=np.uint64)
+    mm = np.array(m, dtype=np.uint64)
+    while np.count_nonzero(mm):
+        mm = np.matmul(mm, m)
+        paths += mm[0, l-1]
 
-    for i in range(1,l+1):
-        #needs to be 64-bit to avoid overflow with matrix_power
-        mm = np.array(m, dtype=np.uint64)
-        mm = matrix_power(mm, i)
-        n = mm[0,l-1]
-        paths += n
     return paths
 
 print("Part 1: %d" % part1())
