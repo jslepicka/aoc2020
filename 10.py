@@ -1,6 +1,6 @@
 import time
 import numpy as np
-from numpy.linalg import matrix_power
+
 input = []
 with open("10.txt") as f:
    input = [int(x.strip()) for x in f.readlines()]
@@ -37,7 +37,7 @@ def part2():
         m.append(a)
 
     paths = 0
-    #needs to be 64-bit to avoid overflow with matrix_power
+    #needs to be 64-bit to avoid overflow
     m = np.array(m, dtype=np.uint64)
     mm = np.copy(m)
     while np.count_nonzero(mm):
