@@ -39,17 +39,17 @@ class ship2:
         self.wp_y = -1
 
     def rotate_wp(self, angle):
+        #translate relative to 0,0
+        x = self.wp_x - self.x
+        y = self.wp_y - self.y
         #genaralize to 90 degree clockwise rotations
         while angle > 0:
-            #translate relative to 0,0
-            x = self.wp_x - self.x
-            y = self.wp_y - self.y
             #rotate around 0,0
             x, y = -y, x
-            #translate back to ship coordinate origin
-            self.wp_x = x + self.x
-            self.wp_y = y + self.y
             angle -= 90
+        #translate back to ship coordinate origin
+        self.wp_x = x + self.x
+        self.wp_y = y + self.y
     
     def move(self, action, value):
         if action == "N":
@@ -65,7 +65,7 @@ class ship2:
         elif action == "R":
             self.rotate_wp(value)
         elif action == "F":
-            #move towards waypoint
+            #move to waypoint
             diff_x = self.wp_x - self.x
             diff_y = self.wp_y - self.y
 
