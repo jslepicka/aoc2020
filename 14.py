@@ -1,3 +1,5 @@
+import time
+
 input = []
 
 with open("14.txt") as f:
@@ -38,21 +40,23 @@ def part2():
             mask_bits = mask.count("X")
             address_mask = 0
         elif "mem" in command:
-            address = int(command.split("[")[1].split("]")[0])
+            address = int(command[4:-1])
             val = int(val)
+            bit_locs = []
+            for bit, v in enumerate(reversed(mask)):
+                if v == "1":
+                    address |= (1 << bit)
+                elif v == "X":
+                    bit_locs.append(bit)
             for _ in range(2**mask_bits):
-                new_address = address
                 am = address_mask
-                for bit, v in enumerate(reversed(mask)):
-                    if v == "X":
-                        if (am & 1):
-                            new_address |= ((am & 1) << bit)
-                        else:
-                            new_address &= ~(1 << bit)
-                        am >>= 1
-                    elif v == "1":
-                        new_address |= (1 << bit)
-                mem[new_address] = val
+                for shift in bit_locs:
+                    if am & 1:
+                        address |= ((am & 1) << shift)
+                    else:
+                        address &= ~(1 << shift)
+                    am >>= 1
+                mem[address] = val
                 address_mask += 1
     return sum(mem.values())
 
