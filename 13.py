@@ -20,7 +20,7 @@ def part1():
     return shortest_wait * shortest_wait_id
 
 """
-Had to google for answers on part 12.  I don't fully understand the Chinese Remainder Theroem, but here's my
+Had to google for answers on part 2.  I don't fully understand the Chinese Remainder Theroem, but here's my
 undertanding of how it's used to solve this.
 
 All bus numbers are prime
