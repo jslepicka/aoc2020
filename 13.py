@@ -20,7 +20,10 @@ def part1():
     return shortest_wait * shortest_wait_id
 
 """
-all bus numbers are prime
+Had to google for answers on part 12.  I don't fully understand the Chinese Remainder Theroem, but here's my
+undertanding of how it's used to solve this.
+
+All bus numbers are prime
 
 time     bus 7   bus 13  bus 59  bus 31  bus 19
 1068773    .       .       .       .       .
@@ -50,39 +53,38 @@ time     bus 7   bus 13  bus 59  bus 31  bus 19
 1068797    .       .       .       .       .
 
 At t=1068781:
+t % 7 = 0
 t % 13 = 12 (13 - delay of 1)
 t % 59 = 55 (59 - delay of 4)
 t % 31 = 25 (31 - delay of 6)
 t % 19 = 12 (31 - delay of 7)
 
+- Increment time by 7 until we find a time where t % 13 == 12
+- Now 7 and 13 meet the criteria at this timestamp.  This will happen again at LCM(7, 13) = 91 intervals; the next
+  occurence is at timestamp + 91.  So for the next search we can increment by 91.
+- Check if t % 59 == 55.  If not, increment by 91.
+- When we find a match, we can now increment by the LCM(91, 59) = 5369
+- Repeat until all busses are in the right position
+
+This is the Chinese Remainder Theorem search by sieving method.
+
+Note: for the LCM operations, the numbers are coprime (which is a requirement for the CRT to work), so this
+      can be done by simply multiplying them together.
+
 """
 
 def part2():
-    #Couldn't figure this out and had to google for solutions.
-    #This is some kind of implementation of the chinese remainder theorem, but I don't really understand it.
     time = 0
     step = 1
     periods = [int(x) for x in ids if x != "x"]
-    remainders = [-i%int(v) for i, v in enumerate(ids) if v != "x"]
+    remainders = [-i % int(v) for i, v in enumerate(ids) if v != "x"]
 
     print(periods)
     print(remainders)
 
     for period, remainder in zip(periods, remainders):
-        #if time % period does not equal remainder, this isn't a possible time for the period
         while time % period != remainder:
             time += step
-
-        #Satisfying all previous conditions can only happen at LCMs of the previous steps.
-        #This is the LCM of step and the period.  This may only work if they are coprime?
-        #factors of the new step are equal to all previous periods multiplied by each other
-        #e.g.:
-        # step starts at 1
-        # 7 meets criteria, step changes to 7
-        # 13 meets criteria at time 77, step changes to 7 x 13 = 91
-        # 59 meets criteria at time 350, step changes to 91 x 59 = 5369
-        # 31 meets criteria at time 70147, step changes to 5369 x 31 = 166439
-        # 19 meets criteria at time 1068781 = 7 x 13 x 59 x 31
         step *= period
         print("time: %d step: %d" % (time, step))
     return time
