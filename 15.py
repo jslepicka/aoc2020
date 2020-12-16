@@ -4,8 +4,8 @@ with open("15.txt") as f:
     input = f.readline().split(",")
 
 def part1(limit):
-    hist = {}
-    last = None
+    hist = [-1] * (limit + 1)
+    last = limit
     
     for i, val in enumerate(input):
         val = int(val)
@@ -14,12 +14,11 @@ def part1(limit):
     
     i = len(input) + 1
     while i < limit + 1:
-        if last not in hist:
+        if hist[last] == -1:
             speak = 0
         else:
             speak = i - hist[last] - 1
-        if last is not None:
-            hist[last] = i-1
+        hist[last] = i-1
         last = speak
         i += 1
     return speak
