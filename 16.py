@@ -1,6 +1,6 @@
 import re
 
-restrictions = {}
+fields = {}
 tickets = [] #tickets[0] is my ticket
 valid_tickets = []
 
@@ -19,16 +19,16 @@ with open("16.txt") as f:
             m = re.match(r'(.+): (\d+)-(\d+) or (\d+)-(\d+)', l)
             if m:
                 field = m.group(1)
-                restrictions[field] = {}
-                restrictions[field]["ranges"] = [(int(m.group(2)), int(m.group(3))), (int(m.group(4)), int(m.group(5)))]
+                fields[field] = {}
+                fields[field]["ranges"] = [(int(m.group(2)), int(m.group(3))), (int(m.group(4)), int(m.group(5)))]
         else:
             tickets.append([int(x) for x in l.split(",")])
 
 def part1():
     #get a list of tuples of restrictions
     res = []
-    for field in restrictions:
-        for r in restrictions[field]["ranges"]:
+    for field in fields:
+        for r in fields[field]["ranges"]:
             res.append(r)
     #sort the list by the first value in the tuple
     sorted_res = sorted(res, key=lambda x: x[0])
@@ -64,46 +64,46 @@ def part1():
     return sum(invalid)
 
 def part2():
-    num_fields = len(restrictions.keys())
+    num_fields = len(fields.keys())
     print("There are %d fields" % num_fields)
     #initialize of list of possible indices for every field
-    for field in restrictions:
-        restrictions[field]["possible"] = [x for x in range(0, num_fields)]
+    for field in fields:
+        fields[field]["possible"] = [x for x in range(0, num_fields)]
     #Go through each ticket's numbers and check them against each restriction.
     #If a restriction prohibits the value, remove the number's index from the list
     #of possibilities.
     for t in valid_tickets:
         for i, val in enumerate(t):
-            for field in restrictions:
+            for field in fields:
                 valid = False
-                for r in restrictions[field]["ranges"]:
+                for r in fields[field]["ranges"]:
                     if val >= r[0] and val <= r[1]:
                         valid = True
                         break
                 if not valid:
-                    restrictions[field]["possible"].remove(i)
+                    fields[field]["possible"].remove(i)
     
-    #Search through the restrictions, ordered by number of possible indices.
+    #Search through the fields, ordered by number of possible indices.
     #When we find an available index, set that as the field's index and add it to the list
     #of found indices.  Multiply ans by our ticket's number in that index if the field
     #start with "departure".
     ans = 1
     found = []
-    for r in sorted(restrictions.items(), key=lambda k_v: len(k_v[1]["possible"])):
+    for r in sorted(fields.items(), key=lambda k_v: len(k_v[1]["possible"])):
         field = r[0]
         possible = r[1]['possible']
         print(field, possible)
         for p in possible:
             if p not in found:
                 found.append(p)
-                restrictions[field]["index"] = p
+                fields[field]["index"] = p
                 if "departure" in field:
                     ans *= tickets[0][p]
                 break
-    for r in sorted(restrictions.items(), key=lambda k_v: k_v[1]["index"]):
-        print(r[0], r[1]["index"])
+    for r in sorted(fields.items(), key=lambda k_v: k_v[1]["index"]):
+        print("%d: %s" % (r[1]["index"], r[0]))
     return ans
 
-    
+
 print("Part 1: %d" % part1())
 print("Part 2: %d" % part2())
