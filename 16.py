@@ -15,7 +15,7 @@ with open("16.txt") as f:
         elif l == "nearby tickets:":
             section = "nearby_tickets"
             continue
-        elif section is None: #retrictions
+        elif section is None: #restrictions
             m = re.match(r'(.+): (\d+)-(\d+) or (\d+)-(\d+)', l)
             if m:
                 field = m.group(1)
@@ -25,14 +25,14 @@ with open("16.txt") as f:
             tickets.append([int(x) for x in l.split(",")])
 
 def part1():
-    #get a list of tuples of restrictions
+    #get a list of tuples of valid ranges
     res = []
     for field in fields:
         for r in fields[field]["ranges"]:
             res.append(r)
     #sort the list by the first value in the tuple
     sorted_res = sorted(res, key=lambda x: x[0])
-    #merge the restictions
+    #merge the ranges
     res = []
     for r in sorted_res:
         if len(res) > 0:
@@ -44,7 +44,7 @@ def part1():
         else:
             res.append(r)
     
-    #put all valid nubmers in a list
+    #put all valid numbers in a list
     search_list = []
     for r in res:
         for l in list(range(r[0], r[1] + 1)):
@@ -69,8 +69,8 @@ def part2():
     #initialize of list of possible indices for every field
     for field in fields:
         fields[field]["possible"] = [x for x in range(0, num_fields)]
-    #Go through each ticket's numbers and check them against each restriction.
-    #If a restriction prohibits the value, remove the number's index from the list
+    #Go through each ticket's numbers and check them against each range.
+    #If a range prohibits the value, remove the number's index from the list
     #of possibilities.
     for t in valid_tickets:
         for i, val in enumerate(t):
