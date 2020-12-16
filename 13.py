@@ -1,3 +1,4 @@
+import time
 timestamp = 0
 ids = []
 
@@ -89,5 +90,39 @@ def part2():
         print("time: %d step: %d" % (time, step))
     return time
 
+def mul_inv(a, b):
+    b0 = b
+    x0, x1 = 0, 1
+    if b == 1: return 1
+    while a > 1:
+        q = a // b
+        a, b = b, a%b
+        x0, x1 = x1 - q * x0, x0
+    if x1 < 0: x1 += b0
+    return x1
+
+#https://rosettacode.org/wiki/Chinese_remainder_theorem
+def part2b():
+    n = [int(x) for x in ids if x != "x"]
+    a = [-i % int(v) for i, v in enumerate(ids) if v != "x"]
+
+    N = 1
+    sum = 0
+
+    for i in n:
+        N *= i
+
+    for i in range(len(n)):
+        p = N / n[i]
+        sum += a[i] * mul_inv(p, n[i]) * p
+
+    return sum % N
+
 print("Part 1: %d" % part1())
+
+start = time.time()
 print("Part 2: %d" % part2())
+print(time.time() - start)
+start = time.time()
+print("Part 2b: %d" % part2b())
+print(time.time() - start)
