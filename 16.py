@@ -86,7 +86,7 @@ def part2():
     #Search through the fields, ordered by number of possible indices.
     #When we find an available index, set that as the field's index and add it to the list
     #of found indices.  Multiply ans by our ticket's number in that index if the field
-    #start with "departure".
+    #starts with "departure".
     ans = 1
     found = []
     for r in sorted(fields.items(), key=lambda k_v: len(k_v[1]["possible"])):
