@@ -1,5 +1,6 @@
 import math
-import json
+import time
+
 TOP, LEFT, BOTTOM, RIGHT = 0, 1, 2, 3
 
 tiledata = {}
@@ -18,14 +19,7 @@ with open("20.txt") as f:
 
 map_d = int(math.sqrt(len(tiledata.keys())))
 
-# print(tiledata)
-
-edge_cache = {}
-
-def get_edge(index, orientation, side):
-    if (index, orientation, side) in edge_cache:
-        return edge_cache[(index, orientation, side)]
-
+def get_edges(index, orientation):
     top = tiledata[index][0]
     bottom = tiledata[index][9]
     left = ""
@@ -36,79 +30,29 @@ def get_edge(index, orientation, side):
         right += tiledata[index][i][9]
 
     if orientation == 0:
-        if side == TOP:
-            ret = top
-        elif side == BOTTOM:
-            ret = bottom
-        elif side == LEFT:
-            ret = left
-        elif side == RIGHT:
-            ret = right
+        ret = (top, left, bottom, right)
     elif orientation == 1: #rotate left 90
-        if side == TOP:
-            ret = right
-        elif side == BOTTOM:
-            ret = left
-        elif side == LEFT:
-            ret = top[::-1]
-        elif side == RIGHT:
-            ret = bottom[::-1]
+        ret = (right, top[::-1], left, bottom[::-1])
     elif orientation == 2: #rotate left 180
-        if side == TOP:
-            ret = bottom[::-1]
-        elif side == BOTTOM:
-            ret = top[::-1]
-        elif side == LEFT:
-            ret = right[::-1]
-        elif side == RIGHT:
-            ret = left[::-1]
+        ret = (bottom[::-1], right[::-1], top[::-1], left[::-1])
     elif orientation == 3: #rotate left 270
-        if side == TOP:
-            ret = left[::-1]
-        elif side == BOTTOM:
-            ret = right[::-1]
-        elif side == LEFT:
-            ret = bottom
-        elif side == RIGHT:
-            ret = top
+        ret = (left[::-1], bottom, right[::-1], top)
     elif orientation == 4: #flip horiz
-        if side == TOP:
-            ret = top[::-1]
-        elif side == BOTTOM:
-            ret = bottom[::-1]
-        elif side == LEFT:
-            ret = right
-        elif side == RIGHT:
-            ret = left
+        ret = (top[::-1], right, bottom[::-1], left)
     elif orientation == 5: #flip horiz, rotate left 90
-        if side == TOP:
-            ret = left
-        elif side == BOTTOM:
-            ret = right
-        elif side == LEFT:
-            ret = top
-        elif side == RIGHT:
-            ret = bottom
+        ret = (left, top, right, bottom)
     elif orientation == 6: #flip horiz, rotate left 180
-        if side == TOP:
-            ret = bottom
-        elif side == BOTTOM:
-            ret = top
-        elif side == LEFT:
-            ret = left[::-1]
-        elif side == RIGHT:
-            ret = right[::-1]
+        ret = (bottom, left[::-1], top, right[::-1])
     elif orientation == 7: #flip horiz, rotate left 270
-        if side == TOP:
-            ret = right[::-1]
-        elif side == BOTTOM:
-            ret = left[::-1]
-        elif side == LEFT:
-            ret = bottom[::-1]
-        elif side == RIGHT:
-            ret = top[::-1]
-    edge_cache[(index, orientation, side)] = ret
+        ret = (right[::-1], bottom[::-1], left[::-1], top[::-1])
+
+    # ret = (int(ret[0].replace("#", "1").replace(".", "0"), base=2),
+    #        int(ret[1].replace("#", "1").replace(".", "0"), base=2),
+    #        int(ret[2].replace("#", "1").replace(".", "0"), base=2),
+    #        int(ret[3].replace("#", "1").replace(".", "0"), base=2))
+        
     return ret
+
 
 #return an array of the tile data in the requested orientation
 def get_tiledata(index, orientation, remove_border = False):
@@ -161,7 +105,6 @@ def print_map(m, remove_border):
     return ret
 
 def overlay_dragons(m):
-    
     width = 8 * map_d
     height = 8 * map_d
     count = 0
@@ -188,6 +131,11 @@ def overlay_dragons(m):
     return count
 
 def part1():
+    edges_cache = {}
+
+    for t in tiledata:
+        for o in range(8):
+            edges_cache[(t, o)] = get_edges(t, o)
 
     valid_maps = []
     ret = 0
@@ -205,16 +153,17 @@ def part1():
             #in the next location, which is either one to the right, or at the start of the next row
 
             for tt in tiledata:
-                for oo in range(8):
-                    if tt not in visited:
+                if tt not in visited:
+                    for oo in range(8):
                         #check if x, oo is a possible fit and if so add to stack
                         valid = False
 
                         #if we're in the top row, and not the last column, find a tile that fits to the right
-
-                        current_right = get_edge(t, o, RIGHT)
-                        proposed_left = get_edge(tt, oo, LEFT)
-                        proposed_top = get_edge(tt, oo, TOP)
+                        current_edges = edges_cache[(t, o)]
+                        proposed_edges = edges_cache[(tt, oo)]
+                        current_right = current_edges[RIGHT]
+                        proposed_left = proposed_edges[LEFT]
+                        proposed_top = proposed_edges[TOP]
 
                         if y == 0:
                             if x < map_d - 1:
@@ -223,24 +172,22 @@ def part1():
                             else:
                                 #if we're in the last column, we need to find a tile that fits under the tile at 0,0
                                 start_tile_id, start_tile_orientation = current_map[(0, 0)]
-                                start_tile_bottom = get_edge(start_tile_id, start_tile_orientation, BOTTOM)
+                                start_tile_bottom = edges_cache[(start_tile_id, start_tile_orientation)][BOTTOM]
                                 if proposed_top == start_tile_bottom:
                                     valid = True
                         else:
                             #if we're not in row 0, we also need to look at the tile in the previous row
                             if x < map_d - 1:
                                 tile_above_id, tile_above_orientation = current_map[(x + 1, y-1)]
-                                tile_above_bottom = get_edge(tile_above_id, tile_above_orientation, BOTTOM)
+                                tile_above_bottom = edges_cache[(tile_above_id, tile_above_orientation)][BOTTOM]
                                 if current_right == proposed_left and proposed_top == tile_above_bottom:
                                     valid = True
                             else:
                                 #in the last column, so figure out a valid tile at the start of the next row
                                 start_tile_id, start_tile_orientation = current_map[(0, y)]
-                                start_tile_bottom = get_edge(start_tile_id, start_tile_orientation, BOTTOM)
+                                start_tile_bottom = edges_cache[(start_tile_id, start_tile_orientation)][BOTTOM]
                                 if proposed_top == start_tile_bottom:
                                     valid = True
-
-
 
                         if valid:
                             #print("Tile %d in orientation %d will fit in location %d, %d" % (tt, oo, x, y))
@@ -254,7 +201,6 @@ def part1():
                             new_map[(next_x, next_y)] = (tt, oo)
                             v = visited.copy()
                             v.append(tt)
-
 
                             stack.append( ((tt,oo), v, next_x, next_y, new_map) )
                             if len(new_map.keys()) == map_d*map_d:
@@ -283,7 +229,8 @@ def part2(maps):
                 hash_count += i.count("#")
             return hash_count
 
+start = time.time()
 valid_maps, ret = part1()
-
 print("Part 1: %d" % ret)
 print("Part 2: %d" % part2(valid_maps))
+print(time.time() - start)
