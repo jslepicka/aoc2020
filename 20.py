@@ -204,8 +204,6 @@ def part1():
 
                             stack.append( (tt, oo, v, next_x, next_y, new_map) )
                             if len(new_map.keys()) == map_d*map_d:
-                                #argh -- there are 8 solutions here for different map orientations.
-                                #this could be optimized... just return the first and rotate/flip afterwards.
                                 prod = 1
                                 for a in [0, map_d-1]:
                                     for b in [0, map_d-1]:
