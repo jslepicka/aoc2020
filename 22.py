@@ -15,8 +15,6 @@ def load_decks():
                     decks[player_num].append(int(l))
     return decks
 
-
-
 def part1():
     decks = load_decks()
     while len(decks[1]) > 0 and len(decks[2]) > 0:
@@ -28,10 +26,9 @@ def part1():
     
     winner = decks[1] if len(decks[1]) > 0 else decks[2]
     score = 0
-    for i, val in enumerate(reversed(list(winner))):
+    for i, val in enumerate(reversed(winner)):
         score += (i + 1) * val
     return score
-
 
 def play_game(deck1, deck2):
     seen = {}
@@ -47,7 +44,7 @@ def play_game(deck1, deck2):
         if len(deck1) >= card1 and len(deck2) >= card2:
             new_deck1 = deck1.copy()
             new_deck2 = deck2.copy()
-            for _ in range(len(new_deck1)-card1):
+            for _ in range(len(new_deck1) - card1):
                 new_deck1.pop()
             for _ in range(len(new_deck2) - card2):
                 new_deck2.pop()
