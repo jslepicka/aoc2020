@@ -165,29 +165,19 @@ def part1():
                         proposed_left = proposed_edges[LEFT]
                         proposed_top = proposed_edges[TOP]
 
-                        if y == 0:
-                            if x < map_d - 1:
-                                if current_right == proposed_left:
-                                    valid = True
-                            else:
-                                #if we're in the last column, we need to find a tile that fits under the tile at 0,0
-                                start_tile_id, start_tile_orientation = current_map[(0, 0)]
-                                start_tile_bottom = edges_cache[(start_tile_id, start_tile_orientation)][BOTTOM]
-                                if proposed_top == start_tile_bottom:
-                                    valid = True
-                        else:
-                            #if we're not in row 0, we also need to look at the tile in the previous row
-                            if x < map_d - 1:
-                                tile_above_id, tile_above_orientation = current_map[(x + 1, y-1)]
-                                tile_above_bottom = edges_cache[(tile_above_id, tile_above_orientation)][BOTTOM]
-                                if current_right == proposed_left and proposed_top == tile_above_bottom:
-                                    valid = True
-                            else:
-                                #in the last column, so figure out a valid tile at the start of the next row
+                        if x == map_d - 1: #in the last column, so we're checking in x=0 of the next row
                                 start_tile_id, start_tile_orientation = current_map[(0, y)]
                                 start_tile_bottom = edges_cache[(start_tile_id, start_tile_orientation)][BOTTOM]
                                 if proposed_top == start_tile_bottom:
                                     valid = True
+                        elif y == 0: #top row, don't need to check above
+                            if current_right == proposed_left:
+                                valid = True
+                        else:
+                            tile_above_id, tile_above_orientation = current_map[(x + 1, y-1)]
+                            tile_above_bottom = edges_cache[(tile_above_id, tile_above_orientation)][BOTTOM]
+                            if current_right == proposed_left and proposed_top == tile_above_bottom:
+                                valid = True
 
                         if valid:
                             #print("Tile %d in orientation %d will fit in location %d, %d" % (tt, oo, x, y))
