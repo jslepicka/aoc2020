@@ -39,6 +39,7 @@ def play_game(deck1, deck2):
             return 1
         else:
             seen[h] = 1
+        w = 0
         card1 = deck1.popleft()
         card2 = deck2.popleft()
         if len(deck1) >= card1 and len(deck2) >= card2:
@@ -49,16 +50,16 @@ def play_game(deck1, deck2):
             for _ in range(len(new_deck2) - card2):
                 new_deck2.pop()
             w = play_game(new_deck1, new_deck2)
-            if w == 1:
-                deck1.append(card1)
-                deck1.append(card2)
-            else:
-                deck2.append(card2)
-                deck2.append(card1)
         else:
-            winner = deck1 if card1 > card2 else deck2
-            winner.append(max(card1, card2))
-            winner.append(min(card1, card2))
+            w = 1 if card1 > card2 else 2
+
+        if w == 1:
+            deck1.append(card1)
+            deck1.append(card2)
+        else:
+            deck2.append(card2)
+            deck2.append(card1)
+
 
     winner = 1 if len(deck1) > len(deck2) else 2
     return winner
