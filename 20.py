@@ -138,90 +138,81 @@ def part1():
         for o in range(8):
             edges_cache[(t, o)] = get_edges(t, o)
 
-    valid_maps = []
     for tile_index in tiledata:
         stack = []
         for orientation in range(8):
             stack.append(  (tile_index, orientation, [tile_index], 0, 0, {(0, 0): (tile_index, orientation)})  )
-        #print(stack)
-
+            
         while len(stack) != 0:
             (t, o, visited, x, y, current_map) = stack.pop()
-            #print("now examaning tile %d, orientation %d at (%d, %d) %s" % (t, o, x, y, visited))
-
             #we are in position x, y, where a tile already exists, and now we want to find a tile that fits
             #in the next location, which is either one to the right, or at the start of the next row
 
-            for tt in tiledata:
-                if tt not in visited:
-                    for oo in range(8):
-                        #check if x, oo is a possible fit and if so add to stack
-                        valid = False
+            for tt in tiledata.keys() - visited:
+                for oo in range(8):
+                    #check if tt, oo is a possible fit and if so add to stack
+                    valid = False
 
-                        #if we're in the top row, and not the last column, find a tile that fits to the right
-                        current_edges = edges_cache[(t, o)]
-                        proposed_edges = edges_cache[(tt, oo)]
-                        current_right = current_edges[RIGHT]
-                        proposed_left = proposed_edges[LEFT]
-                        proposed_top = proposed_edges[TOP]
+                    #if we're in the top row, and not the last column, find a tile that fits to the right
+                    current_edges = edges_cache[(t, o)]
+                    proposed_edges = edges_cache[(tt, oo)]
+                    current_right = current_edges[RIGHT]
+                    proposed_left = proposed_edges[LEFT]
+                    proposed_top = proposed_edges[TOP]
 
-                        if x == map_d - 1: #in the last column, so we're checking in x=0 of the next row
-                                start_tile_id, start_tile_orientation = current_map[(0, y)]
-                                start_tile_bottom = edges_cache[(start_tile_id, start_tile_orientation)][BOTTOM]
-                                if proposed_top == start_tile_bottom:
-                                    valid = True
-                        elif y == 0: #top row, don't need to check above
-                            if current_right == proposed_left:
+                    if x == map_d - 1: #in the last column, so we're checking in x=0 of the next row
+                            start_tile_id, start_tile_orientation = current_map[(0, y)]
+                            start_tile_bottom = edges_cache[(start_tile_id, start_tile_orientation)][BOTTOM]
+                            if proposed_top == start_tile_bottom:
                                 valid = True
-                        else:
-                            tile_above_id, tile_above_orientation = current_map[(x + 1, y-1)]
-                            tile_above_bottom = edges_cache[(tile_above_id, tile_above_orientation)][BOTTOM]
-                            if current_right == proposed_left and proposed_top == tile_above_bottom:
-                                valid = True
+                    elif y == 0: #top row, don't need to check above
+                        if current_right == proposed_left:
+                            valid = True
+                    else:
+                        tile_above_id, tile_above_orientation = current_map[(x + 1, y-1)]
+                        tile_above_bottom = edges_cache[(tile_above_id, tile_above_orientation)][BOTTOM]
+                        if current_right == proposed_left and proposed_top == tile_above_bottom:
+                            valid = True
 
-                        if valid:
-                            #print("Tile %d in orientation %d will fit in location %d, %d" % (tt, oo, x, y))
-                            next_x = x + 1
-                            next_y = y
-                            if x == map_d - 1:
-                                next_x = 0
-                                next_y = y + 1
-                            
-                            new_map = current_map.copy()
-                            new_map[(next_x, next_y)] = (tt, oo)
-                            v = visited.copy()
-                            v.append(tt)
+                    if valid:
+                        next_x = x + 1
+                        next_y = y
+                        if x == map_d - 1:
+                            next_x = 0
+                            next_y = y + 1
+                        
+                        new_map = current_map.copy()
+                        new_map[(next_x, next_y)] = (tt, oo)
+                        v = visited.copy()
+                        v.append(tt)
 
-                            stack.append( (tt, oo, v, next_x, next_y, new_map) )
-                            if len(new_map.keys()) == map_d*map_d:
-                                prod = 1
-                                for a in [0, map_d-1]:
-                                    for b in [0, map_d-1]:
-                                        prod *= new_map[a,b][0]
-                                valid_maps.append(new_map.copy())
-                                print("found valid map")
-                                return valid_maps, prod
+                        stack.append( (tt, oo, v, next_x, next_y, new_map) )
+                        if len(new_map.keys()) == map_d*map_d:
+                            prod = 1
+                            for a in [0, map_d-1]:
+                                for b in [0, map_d-1]:
+                                    prod *= new_map[a,b][0]
+                            print("found valid map")
+                            return new_map, prod
     return None, None
 
-def part2(maps):
-    for m in valid_maps:
-        image = print_map(m, True)
-
-        for o in range(8):
-            print("testing orientation %d" % o)
-            image = rotate_tile(image, o % 4)
-            if o == 4:
-                image = hflip_tile(image)
-            count = overlay_dragons(image)
-            if count > 0:
-                hash_count = 0
-                for i in image:
-                    hash_count += i.count("#")
-                return hash_count
+def part2(m):
+    image = print_map(m, True)
+    for o in range(8):
+        print("testing orientation %d" % o)
+        image = rotate_tile(image, o % 4)
+        if o == 4:
+            image = hflip_tile(image)
+        count = overlay_dragons(image)
+        if count > 0:
+            hash_count = 0
+            for i in image:
+                hash_count += i.count("#")
+            return hash_count
     return 0
 
 start = time.time()
-valid_maps, ret = part1()
+valid_map, ret = part1()
 print("Part 1: %d" % ret)
-print("Part 2: %d" % part2(valid_maps))
+print("Part 2: %d" % part2(valid_map))
 print(time.time() - start)
