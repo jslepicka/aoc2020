@@ -142,11 +142,21 @@ def part1():
         stack = []
         for orientation in range(8):
             stack.append(  (tile_index, orientation, [tile_index], 0, 0, {(0, 0): (tile_index, orientation)})  )
-            
+
         while len(stack) != 0:
             (t, o, visited, x, y, current_map) = stack.pop()
             #we are in position x, y, where a tile already exists, and now we want to find a tile that fits
             #in the next location, which is either one to the right, or at the start of the next row
+            current_edges = edges_cache[(t, o)]
+            current_right = current_edges[RIGHT]
+
+            if x == map_d - 1:
+                start_tile_id, start_tile_orientation = current_map[(0, y)]
+                start_tile_bottom = edges_cache[(start_tile_id, start_tile_orientation)][BOTTOM]
+
+            if y > 0 and x < map_d - 1:
+                tile_above_id, tile_above_orientation = current_map[(x + 1, y-1)]
+                tile_above_bottom = edges_cache[(tile_above_id, tile_above_orientation)][BOTTOM]
 
             for tt in tiledata.keys() - visited:
                 for oo in range(8):
@@ -154,23 +164,17 @@ def part1():
                     valid = False
 
                     #if we're in the top row, and not the last column, find a tile that fits to the right
-                    current_edges = edges_cache[(t, o)]
                     proposed_edges = edges_cache[(tt, oo)]
-                    current_right = current_edges[RIGHT]
                     proposed_left = proposed_edges[LEFT]
                     proposed_top = proposed_edges[TOP]
 
                     if x == map_d - 1: #in the last column, so we're checking in x=0 of the next row
-                            start_tile_id, start_tile_orientation = current_map[(0, y)]
-                            start_tile_bottom = edges_cache[(start_tile_id, start_tile_orientation)][BOTTOM]
-                            if proposed_top == start_tile_bottom:
-                                valid = True
+                        if proposed_top == start_tile_bottom:
+                            valid = True
                     elif y == 0: #top row, don't need to check above
                         if current_right == proposed_left:
                             valid = True
                     else:
-                        tile_above_id, tile_above_orientation = current_map[(x + 1, y-1)]
-                        tile_above_bottom = edges_cache[(tile_above_id, tile_above_orientation)][BOTTOM]
                         if current_right == proposed_left and proposed_top == tile_above_bottom:
                             valid = True
 
