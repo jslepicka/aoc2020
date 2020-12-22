@@ -45,14 +45,7 @@ def get_edges(index, orientation):
         ret = (bottom, left[::-1], top, right[::-1])
     elif orientation == 7: #flip horiz, rotate left 270
         ret = (right[::-1], bottom[::-1], left[::-1], top[::-1])
-
-    # ret = (int(ret[0].replace("#", "1").replace(".", "0"), base=2),
-    #        int(ret[1].replace("#", "1").replace(".", "0"), base=2),
-    #        int(ret[2].replace("#", "1").replace(".", "0"), base=2),
-    #        int(ret[3].replace("#", "1").replace(".", "0"), base=2))
-        
     return ret
-
 
 #return an array of the tile data in the requested orientation
 def get_tiledata(index, orientation, remove_border = False):
@@ -78,12 +71,20 @@ def get_tiledata(index, orientation, remove_border = False):
     return ret
 
 def rotate_tile(tiledata, n):
+    if n == 0:
+        return tiledata
     temp = tiledata
     for _ in range(n):
         temp = list(zip(*temp))[::-1]
     ret = []
     for x in temp:
         ret.append("".join(x))
+    return ret
+
+def hflip_tile(tiledata):
+    ret = []
+    for l in tiledata:
+        ret.append(l[::-1])
     return ret
         
 def print_map(m, remove_border):
@@ -138,15 +139,14 @@ def part1():
             edges_cache[(t, o)] = get_edges(t, o)
 
     valid_maps = []
-    ret = 0
     for tile_index in tiledata:
         stack = []
         for orientation in range(8):
-            stack.append(  ((tile_index, orientation), [tile_index], 0, 0, {(0, 0): (tile_index, orientation)})  )
+            stack.append(  (tile_index, orientation, [tile_index], 0, 0, {(0, 0): (tile_index, orientation)})  )
         #print(stack)
 
         while len(stack) != 0:
-            ((t, o), visited, x, y, current_map) = stack.pop()
+            (t, o, visited, x, y, current_map) = stack.pop()
             #print("now examaning tile %d, orientation %d at (%d, %d) %s" % (t, o, x, y, visited))
 
             #we are in position x, y, where a tile already exists, and now we want to find a tile that fits
@@ -202,7 +202,7 @@ def part1():
                             v = visited.copy()
                             v.append(tt)
 
-                            stack.append( ((tt,oo), v, next_x, next_y, new_map) )
+                            stack.append( (tt, oo, v, next_x, next_y, new_map) )
                             if len(new_map.keys()) == map_d*map_d:
                                 #argh -- there are 8 solutions here for different map orientations.
                                 #this could be optimized... just return the first and rotate/flip afterwards.
@@ -212,22 +212,25 @@ def part1():
                                         prod *= new_map[a,b][0]
                                 valid_maps.append(new_map.copy())
                                 print("found valid map")
-                                if len(valid_maps) == 8:
-                                    return valid_maps, ret
-                                ret = prod
-    return valid_maps, ret
+                                return valid_maps, prod
+    return None, None
 
 def part2(maps):
     for m in valid_maps:
         image = print_map(m, True)
-        count = overlay_dragons(image)
-        if count > 0:
-            for i in image:
-                print(i)
-            hash_count = 0
-            for i in image:
-                hash_count += i.count("#")
-            return hash_count
+
+        for o in range(8):
+            print("testing orientation %d" % o)
+            image = rotate_tile(image, o % 4)
+            if o == 4:
+                image = hflip_tile(image)
+            count = overlay_dragons(image)
+            if count > 0:
+                hash_count = 0
+                for i in image:
+                    hash_count += i.count("#")
+                return hash_count
+    return 0
 
 start = time.time()
 valid_maps, ret = part1()
