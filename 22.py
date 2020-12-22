@@ -71,7 +71,7 @@ def part2():
     play_game(decks[1], decks[2])
     winner = decks[1] if len(decks[1]) > 0 else decks[2]
     score = 0
-    for i, val in enumerate(reversed(list(winner))):
+    for i, val in enumerate(reversed(winner)):
         score += (i + 1) * val
     return score
 
