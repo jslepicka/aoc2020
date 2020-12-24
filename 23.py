@@ -14,11 +14,10 @@ def part1(cups, iterations):
     starting_cup = cup_input[0]
     max_cup = max(cups)
     for _ in range(iterations):
-        pickup = []
-        n = starting_cup
-        for _ in range(3):
-            n = cups[n]
-            pickup.append(n)
+        pickup1 = cups[starting_cup]
+        pickup2 = cups[pickup1]
+        pickup3 = cups[pickup2]
+        pickup = (pickup1, pickup2, pickup3)
         dest = starting_cup - 1
         while True:
             if dest == 0:
