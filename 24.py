@@ -41,11 +41,11 @@ def part2(grid, iterations):
             if loc not in neighbor_counts:
                 neighbor_counts[loc] = 0
             for _, o in offsets.items():
-                qq, rr = loc[0] + o[0], loc[1] + o[1]
-                if (qq, rr) not in neighbor_counts:
-                    neighbor_counts[(qq, rr)] = 1
+                q, r = loc[0] + o[0], loc[1] + o[1]
+                if (q, r) not in neighbor_counts:
+                    neighbor_counts[(q, r)] = 1
                 else:
-                    neighbor_counts[(qq, rr)] += 1
+                    neighbor_counts[(q, r)] += 1
         for loc in neighbor_counts:
             if (loc not in grid or grid[loc] == "white") and neighbor_counts[loc] == 2:
                 g[loc] = "black"
