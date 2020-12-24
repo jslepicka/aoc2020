@@ -6,23 +6,20 @@ with open("24.txt") as f:
 
 #q, r axial coordinates: https://www.redblobgames.com/grids/hexagons/
 
+offsets = {
+    "e": (1, 0),
+    "w": (-1, 0),
+    "se": (0, 1),
+    "sw": (-1, 1),
+    "ne": (1, -1),
+    "nw": (0, -1)
+}
+
 def move(q, r, moves):
     dirs = re.findall(r'(e|w|s.|n.)', moves)
     for dir in dirs:
-        if dir == "e":
-            q += 1
-        elif dir == "w":
-            q -= 1
-        elif dir == "se":
-            r += 1
-        elif dir == "sw":
-            q -= 1
-            r += 1
-        elif dir == "ne":
-            q += 1
-            r -= 1
-        elif dir == "nw":
-            r -= 1
+        offset = offsets[dir]
+        q, r = q + offset[0], r + offset[1]
     return (q, r)
 
 def part1():
@@ -43,9 +40,8 @@ def part2(grid, iterations):
         for loc in [k for k, v in grid.items() if v == "black"]:
             if loc not in neighbor_counts:
                 neighbor_counts[loc] = 0
-            neighbors = [(1, 0), (-1, 0), (0, 1), (-1, 1), (1, -1), (0, -1)]
-            for n in neighbors:
-                qq, rr = loc[0] + n[0], loc[1] + n[1]
+            for _, o in offsets.items():
+                qq, rr = loc[0] + o[0], loc[1] + o[1]
                 if (qq, rr) not in neighbor_counts:
                     neighbor_counts[(qq, rr)] = 1
                 else:
